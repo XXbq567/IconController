@@ -1,10 +1,9 @@
-# .github/workflows/build.yml
 name: Build Windows EXE
 
 on:
   push:
-    branches: [ main ]        # 每次推送到 main 分支即触发
-  workflow_dispatch:          # 手动触发按钮
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,12 +18,8 @@ jobs:
       shell: cmd
       run: |
         cl /EHsc /MD /O2 /DUNICODE /D_UNICODE ^
-           /I"%GITHUB_WORKSPACE%\res" ^
-           "%GITHUB_WORKSPACE%\src\main.cpp" ^
-           "%GITHUB_WORKSPACE%\src\settings.cpp" ^
-           "%GITHUB_WORKSPACE%\src\tray.cpp" ^
-           "%GITHUB_WORKSPACE%\src\icon.cpp" ^
-           "%GITHUB_WORKSPACE%\res\resource.rc" ^
+           src\main.cpp src\settings.cpp src\tray.cpp src\icon.cpp ^
+           res\resource.rc ^
            /link /OUT:DesktopIconController.exe /SUBSYSTEM:WINDOWS
 
     - name: Upload artifact
