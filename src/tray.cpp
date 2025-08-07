@@ -6,19 +6,23 @@
 extern void ToggleDesktopIcons();
 extern void ShowSettingsDlg(HWND);
 
-bool RegisterTray(HWND hWnd) {
-    NOTIFYICONDATAW nid{ sizeof(nid) };
-    nid.hWnd = hWnd;
-    nid.uID = 100;
-    nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-    nid.uCallbackMessage = WM_TRAY;
-    nid.hIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_ICON1));
-    wcscpy_s(nid.szTip, L"桌面图标控制器");
-    Shell_NotifyIconW(NIM_ADD, &nid);
+// 真正的窗口过程（普通函数，可捕获 nid）
+LRESULT CALLBACK TrayWndProc(HWND h, UINT m, WPARAM w, LPARAM l) {
+    static NOTIFYICONDATAW nid{ sizeof(nid) };
 
-    auto newWndProc = [](HWND h, UINT m, WPARAM w, LPARAM l,
-                         NOTIFYICONDATAW nidLocal)->LRESULT {
-        if (m == WM_TRAY && l == WM_RBUTTONUP) {
+    switch (m) {
+    case WM_CREATE: {
+        nid.hWnd = h;
+        nid.uID = 100;
+        nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+        nid.uCallbackMessage = WM_TRAY;
+        nid.hIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_ICON1));
+        wcscpy_s(nid.szTip, L"桌面图标控制器");
+        Shell_NotifyIconW(NIM_ADD, &nid);
+        return 0;
+    }
+    case WM_TRAY:
+        if (l == WM_RBUTTONUP) {
             POINT pt; GetCursorPos(&pt);
             HMENU menu = CreatePopupMenu();
             AppendMenuW(menu, MF_STRING, 1000, L"设置");
@@ -27,17 +31,27 @@ bool RegisterTray(HWND hWnd) {
             TrackPopupMenu(menu, TPM_RIGHTBUTTON, pt.x, pt.y, 0, h, nullptr);
             DestroyMenu(menu);
         }
-        if (m == WM_COMMAND) {
-            if (LOWORD(w) == 1000) ShowSettingsDlg(h);
-            if (LOWORD(w) == 1001) { Shell_NotifyIconW(NIM_DELETE, &nidLocal); PostQuitMessage(0); }
+        return 0;
+    case WM_COMMAND:
+        if (LOWORD(w) == 1000) ShowSettingsDlg(h);
+        if (LOWORD(w) == 1001) {
+            Shell_NotifyIconW(NIM_DELETE, &nid);
+            PostQuitMessage(0);
         }
-        if (m == WM_HOTKEY && w == 1) ToggleDesktopIcons();
-        return DefWindowProc(h, m, w, l);
-    };
+        return 0;
+    case WM_HOTKEY:
+        if (w == 1) ToggleDesktopIcons();
+        return 0;
+    case WM_DESTROY:
+        Shell_NotifyIconW(NIM_DELETE, &nid);
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(h, m, w, l);
+}
 
-    SetWindowLongPtrW(hWnd, GWLP_WNDPROC,
-        (LONG_PTR)[](HWND h, UINT m, WPARAM w, LPARAM l)->LRESULT {
-            return newWndProc(h, m, w, l, nid);
-        });
+bool RegisterTray(HWND hWnd) {
+    // 把窗口过程换成 TrayWndProc
+    SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (LONG_PTR)TrayWndProc);
     return true;
 }
