@@ -17,9 +17,13 @@ jobs:
     - name: Build Release x64
       shell: cmd
       run: |
+        rc /r res\resource.rc
         cl /EHsc /MD /O2 /DUNICODE /D_UNICODE ^
-           src\main.cpp src\settings.cpp src\tray.cpp src\icon.cpp ^
-           res\resource.rc ^
+           src\main.cpp ^
+           src\settings.cpp ^
+           src\tray.cpp ^
+           src\icon.cpp ^
+           res\resource.res ^
            /link /OUT:DesktopIconController.exe /SUBSYSTEM:WINDOWS
 
     - name: Upload artifact
