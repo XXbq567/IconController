@@ -1,4 +1,4 @@
-
+# .github/workflows/build.yml
 name: Build Windows EXE
 
 on:
@@ -15,18 +15,26 @@ jobs:
     - name: Add MSVC to PATH
       uses: ilammy/msvc-dev-cmd@v1
 
+    - name: List files (debug)
+      shell: cmd
+      run: |
+        dir src
+        dir res
+
     - name: Build Release x64
       shell: cmd
       run: |
         cl /EHsc /O2 /DUNICODE /D_UNICODE ^
-           /Ires ^
-           src\*.cpp ^
-           res\resource.rc ^
+           /I"%GITHUB_WORKSPACE%\res" ^
+           "%GITHUB_WORKSPACE%\src\main.cpp" ^
+           "%GITHUB_WORKSPACE%\src\settings.cpp" ^
+           "%GITHUB_WORKSPACE%\src\tray.cpp" ^
+           "%GITHUB_WORKSPACE%\src\icon.cpp" ^
+           "%GITHUB_WORKSPACE%\res\resource.rc" ^
            /link /OUT:DesktopIconController.exe
 
-    - name: Upload artifact (manual run)
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
-      if: github.event_name == 'workflow_dispatch'
       with:
         name: DesktopIconController
         path: DesktopIconController.exe
