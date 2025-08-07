@@ -28,20 +28,21 @@ void ShowSettingsDlg(HWND hParent) {
     LoadCfg();
     DialogBoxParamW(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_SETTINGS), hParent,
         [](HWND h, UINT m, WPARAM w, LPARAM l)->INT_PTR {
+            HWND cb = nullptr;
             switch (m) {
             case WM_INITDIALOG:
                 CheckDlgButton(h, IDC_HIDE, g_cfg.hideIcons ? BST_CHECKED : BST_UNCHECKED);
                 CheckDlgButton(h, IDC_TRAY, g_cfg.showInSysTray ? BST_CHECKED : BST_UNCHECKED);
-                HWND cb = GetDlgItem(h, IDC_TRANS);
+                cb = GetDlgItem(h, IDC_TRANS);
                 SendMessageW(cb, CB_ADDSTRING, 0, (LPARAM)L"完全隐藏");
                 SendMessageW(cb, CB_ADDSTRING, 0, (LPARAM)L"透明度10%(占位)");
                 SendMessageW(cb, CB_SETCURSEL, g_cfg.transparency, 0);
                 return TRUE;
             case WM_COMMAND:
                 if (LOWORD(w) == IDOK) {
-                    g_cfg.hideIcons     = IsDlgButtonChecked(h, IDC_HIDE) == BST_CHECKED;
-                    g_cfg.showInSysTray = IsDlgButtonChecked(h, IDC_TRAY) == BST_CHECKED;
-                    g_cfg.transparency  = (int)SendDlgItemMessage(h, IDC_TRANS, CB_GETCURSEL, 0, 0);
+                    g_cfg.hideIcons    = IsDlgButtonChecked(h, IDC_HIDE) == BST_CHECKED;
+                    g_cfg.showInSysTray= IsDlgButtonChecked(h, IDC_TRAY) == BST_CHECKED;
+                    g_cfg.transparency = (int)SendDlgItemMessage(h, IDC_TRANS, CB_GETCURSEL, 0, 0);
                     SaveCfg();
                     EndDialog(h, 1);
                 }
