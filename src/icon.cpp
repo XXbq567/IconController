@@ -6,9 +6,9 @@ void ToggleDesktopIcons() {
     if (!psw) return;
 
     IDispatch* pdisp = nullptr;
-    VARIANT v{ VT_I4, CSIDL_DESKTOP };
-    if (SUCCEEDED(psw->FindWindowSW(&v, nullptr, SWC_DESKTOP,
-                                     (long*)(void*)&pdisp, SWFO_NEEDDISPATCH))) {
+    long hwndUnused;
+    if (SUCCEEDED(psw->FindWindowSW(nullptr, nullptr, SWC_DESKTOP,
+                                     &hwndUnused, SWFO_NEEDDISPATCH, &pdisp))) {
         IServiceProvider* psp = nullptr;
         if (SUCCEEDED(pdisp->QueryInterface(IID_IServiceProvider, (void**)&psp))) {
             IShellBrowser* psb = nullptr;
