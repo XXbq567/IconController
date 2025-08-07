@@ -2,24 +2,24 @@
 #include "../res/resource.h"
 
 struct Config {
-    bool hideIcons = true;
-    bool showInSysTray = true;
-    int transparency = 0;
+    bool hideIcons      = true;
+    bool showInSysTray  = true;
+    int  transparency   = 0;
 } g_cfg;
 
 static void SaveCfg() {
     WCHAR path[MAX_PATH];
     SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, path);
     wcscat_s(path, L"\\DeskIconCtl.ini");
-    WritePrivateProfileStringW(L"cfg", L"hideIcons", g_cfg.hideIcons ? L"1" : L"0", path);
+    WritePrivateProfileStringW(L"cfg", L"hideIcons",    g_cfg.hideIcons     ? L"1" : L"0", path);
     WritePrivateProfileStringW(L"cfg", L"showInSysTray", g_cfg.showInSysTray ? L"1" : L"0", path);
-    WritePrivateProfileStringW(L"cfg", L"transparency", std::to_wstring(g_cfg.transparency).c_str(), path);
+    WritePrivateProfileStringW(L"cfg", L"transparency",  std::to_wstring(g_cfg.transparency).c_str(), path);
 }
 static void LoadCfg() {
     WCHAR path[MAX_PATH];
     SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, path);
     wcscat_s(path, L"\\DeskIconCtl.ini");
-    g_cfg.hideIcons     = GetPrivateProfileIntW(L"cfg", L"hideIcons", 1, path) != 0;
+    g_cfg.hideIcons     = GetPrivateProfileIntW(L"cfg", L"hideIcons",    1, path) != 0;
     g_cfg.showInSysTray = GetPrivateProfileIntW(L"cfg", L"showInSysTray", 1, path) != 0;
     g_cfg.transparency  = GetPrivateProfileIntW(L"cfg", L"transparency", 0, path);
 }
@@ -39,9 +39,9 @@ void ShowSettingsDlg(HWND hParent) {
                 return TRUE;
             case WM_COMMAND:
                 if (LOWORD(w) == IDOK) {
-                    g_cfg.hideIcons    = IsDlgButtonChecked(h, IDC_HIDE) == BST_CHECKED;
-                    g_cfg.showInSysTray= IsDlgButtonChecked(h, IDC_TRAY) == BST_CHECKED;
-                    g_cfg.transparency = (int)SendDlgItemMessage(h, IDC_TRANS, CB_GETCURSEL, 0, 0);
+                    g_cfg.hideIcons     = IsDlgButtonChecked(h, IDC_HIDE) == BST_CHECKED;
+                    g_cfg.showInSysTray = IsDlgButtonChecked(h, IDC_TRAY) == BST_CHECKED;
+                    g_cfg.transparency  = (int)SendDlgItemMessage(h, IDC_TRANS, CB_GETCURSEL, 0, 0);
                     SaveCfg();
                     EndDialog(h, 1);
                 }
