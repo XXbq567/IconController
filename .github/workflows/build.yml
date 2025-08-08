@@ -55,7 +55,9 @@ jobs:
            src\tray.cpp ^
            src\icon.cpp ^
            res\resource.res ^
-           /link /OUT:DesktopIconController.exe /SUBSYSTEM:WINDOWS
+           /link /OUT:DesktopIconController.exe ^
+           /SUBSYSTEM:WINDOWS ^
+           user32.lib gdi32.lib shell32.lib ole32.lib comctl32.lib advapi32.lib
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
