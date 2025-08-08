@@ -14,15 +14,37 @@ jobs:
     - name: Add MSVC to PATH
       uses: ilammy/msvc-dev-cmd@v1
 
-    # 现场生成合法 32×32 icon.ico（3.00 格式）
-    - name: Generate valid icon.ico
+    # 1. 现场生成合法 32×32 icon.ico（3.00 格式）
+    - name: Create icon.ico
       shell: cmd
       run: |
         powershell -NoProfile -Command ^
-          "$bytes=[Convert]::FromBase64String('AAABAAMAICAAAAEAIACoEAAAFgAAACgAAAAgAAAAQAAAAAEAIAAAAAAAABAAABILAAASCwAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD');" ^
+          "$bytes=[Convert]::FromBase64String('AAABAAMAICAAAAEAIACoEAAAFgAAACgAAAAgAAAAQAAAAAEAIAAAAAAAABAAABILAAASCwAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD');" ^
           "Set-Content -Path res\icon.ico -Value $bytes -Encoding Byte"
 
-    # 编译
+    # 2. 修正 resource.rc（确保包含 windows.h）
+    - name: Fix resource.rc
+      shell: cmd
+      run: |
+        echo #include ^<windows.h^> > res\resource.tmp
+        echo #include "resource.h" >> res\resource.tmp
+        echo IDI_ICON1 ICON "icon.ico" >> res\resource.tmp
+        echo IDD_SETTINGS DIALOGEX 0,0,200,120 >> res\resource.tmp
+        echo STYLE WS_POPUP^|WS_CAPTION^|WS_SYSMENU^|DS_MODALFRAME >> res\resource.tmp
+        echo CAPTION "设置" >> res\resource.tmp
+        echo FONT 9,"Segoe UI" >> res\resource.tmp
+        echo BEGIN >> res\resource.tmp
+        echo   GROUPBOX "隐藏模式",-1,7,7,186,40 >> res\resource.tmp
+        echo   CONTROL "隐藏图标",IDC_HIDE,"Button",BS_AUTOCHECKBOX,15,20,80,14 >> res\resource.tmp
+        echo   CONTROL "显示在后台应用目录",IDC_TRAY,"Button",BS_AUTOCHECKBOX,15,35,120,14 >> res\resource.tmp
+        echo   LTEXT "透明度选择:",-1,7,55,60,14 >> res\resource.tmp
+        echo   COMBOBOX IDC_TRANS,70,53,120,80,CBS_DROPDOWNLIST >> res\resource.tmp
+        echo   DEFPUSHBUTTON "确定",IDOK,50,90,50,14 >> res\resource.tmp
+        echo   PUSHBUTTON "取消",IDCANCEL,110,90,50,14 >> res\resource.tmp
+        echo END >> res\resource.tmp
+        move /y res\resource.tmp res\resource.rc
+
+    # 3. 编译
     - name: Build Release x64
       shell: cmd
       run: |
