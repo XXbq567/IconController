@@ -1,9 +1,42 @@
-name: Hello
+# .github/workflows/build.yml
+name: Build Release
 
-on: [push]
+# 触发条件：推送 v* 标签 或 手工点击 Run workflow
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:   # <-- 网页端手动触发按钮
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write   # 允许上传 Release
     steps:
-      - run: echo "Actions works"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Publish
+        run: |
+          dotnet publish src `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -o publish
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: publish/*.exe
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
