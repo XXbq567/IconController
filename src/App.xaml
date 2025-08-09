@@ -1,0 +1,9 @@
+<Application x:Class="IconController.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+  <Application.Resources>
+    <SolidColorBrush x:Key="BgBrush" Color="#A2D0FC"/>
+    <SolidColorBrush x:Key="FgBrush" Color="Black"/>
+  </Application.Resources>
+</Application>
