@@ -12,7 +12,7 @@ namespace IconController
         public bool HideIcons { get; set; }   = false;
         public bool FirstRun { get; set; }    = true;
 
-        private static readonly string Dir  = Path.Combine(
+        private static readonly string Dir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "IconController");
         private static readonly string FilePath = Path.Combine(Dir, "settings.json");
