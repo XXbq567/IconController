@@ -7,8 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using Button = System.Windows.Controls.Button;
-using Orientation = System.Windows.Controls.Orientation;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -146,7 +144,7 @@ namespace IconController
         private void ApplyAutoStart()
         {
             var rk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
-                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\Run", true);
             var exe = Process.GetCurrentProcess().MainModule!.FileName;
             if (_s.AutoStart)
                 rk?.SetValue("IconController", exe);
@@ -199,4 +197,11 @@ namespace IconController
         }
 
         [DllImport("shell32.dll")] private static extern void SHChangeNotify(int w, int u, IntPtr d1, IntPtr d2);
-        private static void RefreshDesktop() => SHChangeNotify(0x8000000, 0x1000, IntPtr.Zero, IntPtr
+        private static void RefreshDesktop() => SHChangeNotify(0x8000000, 0x1000, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    internal static class Ext
+    {
+        public static T Also<T>(this T obj, Action<T> act) { act(obj); return obj; }
+    }
+}
