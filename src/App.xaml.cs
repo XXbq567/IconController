@@ -24,7 +24,7 @@ namespace IconController
             {
                 s.FirstRun = false;
                 s.Save();
-                base.OnStartup(e);          // 正常启动 MainWindow
+                base.OnStartup(e); // 正常启动 MainWindow
             }
             else
             {
