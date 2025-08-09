@@ -7,8 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using Button = System.Windows.Controls.Button;
-using Orientation = System.Windows.Controls.Orientation;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -42,18 +40,23 @@ namespace IconController
             StartPolling();
         }
 
-        #region UI Events
-        private void ChangeBtn_Click(object sender, RoutedEventArgs e) => OpenCaptureWindow();
-        private void SaveBtn_Click(object sender, RoutedEventArgs e)   => Save();
-        private void CancelBtn_Click(object sender, RoutedEventArgs e) => { if (!_s.FirstRun) Hide(); else Close(); }
-        #endregion
+        private void BindUi()
+        {
+            EnabledBox.IsChecked = _s.Enabled;
+            HotkeyBox.Text = _s.Hotkey;
+            AutoStartBox.IsChecked = _s.AutoStart;
+            ShowTrayBox.IsChecked = _s.ShowTrayIcon;
 
-        #region Hotkey Capture
+            SaveBtn.Click += (_, __) => Save();
+            CancelBtn.Click += (_, __) => { if (!_s.FirstRun) Hide(); else Close(); };
+            ChangeBtn.Click += (_, __) => OpenCaptureWindow();
+        }
+
         private void OpenCaptureWindow()
         {
             var w = new Window
             {
-                Title = "请按下新快捷键…",
+                Title = "请按下新快捷键",
                 Width = 300, Height = 120,
                 Owner = this,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -67,12 +70,12 @@ namespace IconController
                 }
             };
 
-            w.KeyDown += (_, e) =>
+            w.KeyDown += (s, e) =>
             {
                 var mod = "";
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) mod += "Ctrl+";
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))     mod += "Alt+";
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))   mod += "Shift+";
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) mod += "Alt+";
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) mod += "Shift+";
                 var key = e.Key == Key.System ? e.SystemKey : e.Key;
                 if (key != Key.None && key != Key.LeftCtrl && key != Key.RightCtrl &&
                     key != Key.LeftAlt && key != Key.RightAlt &&
@@ -124,12 +127,11 @@ namespace IconController
             dlg.Content = panel;
             dlg.ShowDialog();
         }
-        #endregion
 
         private void Save()
         {
-            _s.Enabled      = EnabledBox.IsChecked == true;
-            _s.AutoStart    = AutoStartBox.IsChecked == true;
+            _s.Enabled = EnabledBox.IsChecked == true;
+            _s.AutoStart = AutoStartBox.IsChecked == true;
             _s.ShowTrayIcon = ShowTrayBox.IsChecked == true;
             _s.Save();
 
