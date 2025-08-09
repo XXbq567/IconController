@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -16,7 +15,7 @@ namespace IconController
         private readonly Settings _s = Settings.Load();
         private HotkeyManager _hk;
         private readonly NotifyIcon _tray;
-        private readonly Timer _poll;
+        private Timer _poll;
 
         public MainWindow()
         {
@@ -43,9 +42,9 @@ namespace IconController
         private void BindUi()
         {
             EnabledBox.IsChecked = _s.Enabled;
-            HotkeyBox.Text       = _s.Hotkey;
+            HotkeyBox.Text = _s.Hotkey;
             AutoStartBox.IsChecked = _s.AutoStart;
-            ShowTrayBox.IsChecked  = _s.ShowTrayIcon;
+            ShowTrayBox.IsChecked = _s.ShowTrayIcon;
         }
 
         private void ChangeBtn_Click(object sender, RoutedEventArgs e)
@@ -70,12 +69,10 @@ namespace IconController
             {
                 var mod = "";
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) mod += "Ctrl+";
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))     mod += "Alt+";
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))   mod += "Shift+";
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) mod += "Alt+";
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) mod += "Shift+";
                 var key = k.Key == Key.System ? k.SystemKey : k.Key;
-                if (key != Key.None && key != Key.LeftCtrl && key != Key.RightCtrl &&
-                    key != Key.LeftAlt && key != Key.RightAlt &&
-                    key != Key.LeftShift && key != Key.RightShift)
+                if (key != Key.None && !key.ToString().StartsWith("Left") && !key.ToString().StartsWith("Right"))
                 {
                     var newHotkey = mod + key;
                     w.Close();
@@ -93,7 +90,7 @@ namespace IconController
                 Width = 280, Height = 120,
                 Owner = this,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Content = new StackPanel
+                Content = new System.Windows.Controls.StackPanel
                 {
                     Children =
                     {
@@ -102,7 +99,7 @@ namespace IconController
                             Text = $"设为 {newHotkey} 吗？",
                             Margin = new Thickness(10)
                         },
-                        new StackPanel
+                        new System.Windows.Controls.StackPanel
                         {
                             Orientation = Orientation.Horizontal,
                             HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
@@ -110,11 +107,13 @@ namespace IconController
                             {
                                 new System.Windows.Controls.Button
                                 {
-                                    Content = "保存设置", Width = 90, Margin = new Thickness(5)
+                                    Content = "保存设置", Width = 90, Margin = new Thickness(5),
+                                    Background = (System.Windows.Media.Brush)FindResource("BgBrush")
                                 }.Also(b => b.Click += (_, __) => { _s.Hotkey = newHotkey; dlg.Close(); }),
                                 new System.Windows.Controls.Button
                                 {
-                                    Content = "重新设置", Width = 90, Margin = new Thickness(5)
+                                    Content = "重新设置", Width = 90, Margin = new Thickness(5),
+                                    Background = (System.Windows.Media.Brush)FindResource("BgBrush")
                                 }.Also(b => b.Click += (_, __) => { dlg.Close(); ChangeBtn_Click(null, null); })
                             }
                         }
@@ -152,59 +151,4 @@ namespace IconController
             if (_s.AutoStart)
                 rk?.SetValue("IconController", exe);
             else
-                rk?.DeleteValue("IconController", false);
-        }
-
-        private void RestartHotkey()
-        {
-            _hk?.Dispose();
-            if (_s.Enabled)
-                _hk = new HotkeyManager(
-                    new WindowInteropHelper(this).Handle,
-                    _s.Hotkey,
-                    () =>
-                    {
-                        bool cur = IsIconsHidden();
-                        SetIconsVisible(cur);
-                        _s.HideIcons = !cur;
-                        _s.Save();
-                    });
-        }
-
-        private bool IsIconsHidden() =>
-            (int?)Microsoft.Win32.Registry.GetValue(
-                @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
-                "HideIcons", 0) == 1;
-
-        private void SetIconsVisible(bool show)
-        {
-            Microsoft.Win32.Registry.SetValue(
-                @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
-                "HideIcons", show ? 0 : 1, Microsoft.Win32.RegistryValueKind.DWord);
-            RefreshDesktop();
-        }
-
-        private void StartPolling()
-        {
-            _poll = new Timer(1500);
-            _poll.Elapsed += (_, __) =>
-            {
-                bool cur = IsIconsHidden();
-                if (cur != _s.HideIcons)
-                {
-                    _s.HideIcons = cur;
-                    _s.Save();
-                }
-            };
-            _poll.Start();
-        }
-
-        [DllImport("shell32.dll")] private static extern void SHChangeNotify(int w, int u, IntPtr d1, IntPtr d2);
-        private static void RefreshDesktop() => SHChangeNotify(0x8000000, 0x1000, IntPtr.Zero, IntPtr.Zero);
-    }
-
-    internal static class Ext
-    {
-        public static T Also<T>(this T obj, Action<T> act) { act(obj); return obj; }
-    }
-}
+                rk?.DeleteValue("IconController", false
