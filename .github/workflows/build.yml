@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:        # ← 手动按钮
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,20 +17,20 @@ jobs:
 
       - name: Publish
         run: |
-          dotnet publish src `
-            -c Release -r win-x64 --self-contained true `
-            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+          dotnet publish src/IconController.csproj \
+            -c Release \
+            -r win-x64 \
+            --self-contained false \
+            -p:PublishSingleFile=true \
             -o publish
 
-      # 把 exe 当作工件，100 % 可见
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DesktopToggle-Win-x64
+          name: IconController-Win-x64
           path: publish/*.exe
 
-      # 如果打了 tag，再上传到 Release
-      - name: Upload to Release
+      - name: Upload Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
