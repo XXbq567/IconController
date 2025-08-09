@@ -13,4 +13,4 @@ namespace IconController
         private readonly HwndSource _src;
 
         [DllImport("user32")] static extern bool RegisterHotKey(IntPtr h, int id, uint f, uint v);
-        [DllImport("user32")] static extern bool UnregisterHotKey(IntPtr h, int id);
+        [DllImport("user32")] static extern bool UnregisterHotKey(IntPtr h, int id
