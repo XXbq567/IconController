@@ -18,12 +18,12 @@ namespace IconController
             if (s.FirstRun)
             {
                 s.FirstRun = false; s.Save();
-                base.OnStartup(e);            // 首次启动弹窗
+                base.OnStartup(e);
             }
             else
             {
                 base.OnStartup(e);
-                if (MainWindow is MainWindow mw) mw.Hide(); // 后台托盘
+                (MainWindow as MainWindow)?.Hide();
             }
         }
 
