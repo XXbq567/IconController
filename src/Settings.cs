@@ -9,27 +9,23 @@ namespace DesktopToggle
         public string Hotkey { get; set; } = "Ctrl+Alt+H";
         public bool AutoStart { get; set; } = false;
         public bool ShowTrayIcon { get; set; } = true;
-        public bool Enabled { get; set; } = false;   // 首次默认关闭
-        public bool HideIcons { get; set; } = false; // 首次默认不隐藏
-        public bool FirstRun { get; set; } = true;   // 用来弹设置窗
+        public bool Enabled { get; set; } = true;
 
-        private static readonly string DirPath = Path.Combine(
+        private static readonly string Path = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "DesktopToggle");
-
-        private static readonly string FilePath = Path.Combine(DirPath, "settings.json");
+            "DesktopToggle", "settings.json");
 
         public void Save()
         {
-            Directory.CreateDirectory(DirPath);
-            File.WriteAllText(FilePath, JsonSerializer.Serialize(this));
+            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
+            File.WriteAllText(Path, JsonSerializer.Serialize(this));
         }
 
         public static Settings Load()
         {
             try
             {
-                return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FilePath)) ?? new Settings();
+                return JsonSerializer.Deserialize<Settings>(File.ReadAllText(Path)) ?? new Settings();
             }
             catch
             {
