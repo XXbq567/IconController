@@ -14,7 +14,7 @@ namespace IconController
         public bool FirstRun { get; set; }    = true;
 
         private static readonly string Dir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
             "IconController");
         private static readonly string FilePath = Path.Combine(Dir, "settings.json");
 
