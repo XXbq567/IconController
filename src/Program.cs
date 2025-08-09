@@ -1,15 +1,18 @@
+using System;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace DesktopToggle
 {
-    public class Program
+    internal static class Program
     {
-        [STAThread]
+        [STAThread]                         // 需要 using System;
         public static void Main()
         {
             var app = new Application();
-            app.Run();   // 不传入 Window，由 MainWindow 自己在构造里 Hide
-            // MainWindow 实例会在托盘里保持后台
+            // 主窗口自己创建，立即隐藏
+            var mw = new MainWindow();
+            app.Run();
         }
     }
 }
