@@ -17,7 +17,8 @@ namespace IconController
             var s = Settings.Load();
             if (s.FirstRun)
             {
-                s.FirstRun = false; s.Save();
+                s.FirstRun = false;
+                s.Save();
                 base.OnStartup(e);
             }
             else
