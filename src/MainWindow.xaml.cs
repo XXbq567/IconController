@@ -10,12 +10,12 @@ namespace DesktopToggle
     public partial class MainWindow : Window
     {
         private readonly Settings _settings = Settings.Load();
-        private HotkeyManager? _hk;
+        private HotkeyManager _hk;
         private readonly System.Windows.Forms.NotifyIcon _tray;
 
         public MainWindow()
         {
-            InitializeComponent();   // 现在能找到，因为 x:Name 已匹配
+            InitializeComponent();
 
             _tray = new System.Windows.Forms.NotifyIcon
             {
@@ -24,7 +24,13 @@ namespace DesktopToggle
                 Visible = _settings.ShowTrayIcon
             };
 
-            // 绑定控件
+            // 绑定界面
+            Loaded += (_, __) => Hide();
+            _tray.DoubleClick += (_, __) => Show();
+            _tray.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
+            _tray.ContextMenuStrip.Items.Add("设置", null, (_, __) => Show());
+            _tray.ContextMenuStrip.Items.Add("退出", null, (_, __) => Close());
+
             EnabledBox.IsChecked = _settings.Enabled;
             HotkeyBox.Text = _settings.Hotkey;
             AutoStartBox.IsChecked = _settings.AutoStart;
@@ -32,13 +38,6 @@ namespace DesktopToggle
 
             SaveBtn.Click += (_, __) => Save();
             CancelBtn.Click += (_, __) => Close();
-            _tray.DoubleClick += (_, __) => Show();
-
-            _tray.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
-            _tray.ContextMenuStrip.Items.Add("设置", null, (_, __) => Show());
-            _tray.ContextMenuStrip.Items.Add("退出", null, (_, __) => Close());
-
-            Loaded += (_, __) => Hide(); // 启动即隐藏
 
             ApplyAutoStart();
             RestartHotkey();
@@ -46,8 +45,8 @@ namespace DesktopToggle
 
         private void Save()
         {
-            _settings.Enabled = EnabledBox.IsChecked == true;
-            _settings.Hotkey = HotkeyBox.Text;
+            _settings.Enabled   = EnabledBox.IsChecked == true;
+            _settings.Hotkey    = HotkeyBox.Text;
             _settings.AutoStart = AutoStartBox.IsChecked == true;
             _settings.ShowTrayIcon = ShowTrayIconBox.IsChecked == true;
             _settings.Save();
