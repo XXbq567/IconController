@@ -6,12 +6,25 @@ namespace DesktopToggle
 {
     internal static class Program
     {
-        [STAThread]                         // 需要 using System;
+        [STAThread]
         public static void Main()
         {
             var app = new Application();
-            // 主窗口自己创建，立即隐藏
-            var mw = new MainWindow();
+            var settings = Settings.Load();
+
+            // 首次运行强制显示设置窗口
+            if (settings.FirstRun)
+            {
+                settings.FirstRun = false;
+                settings.Save();
+                new MainWindow().ShowDialog();
+            }
+            else
+            {
+                // 以后启动只留托盘
+                _ = new MainWindow();  // 构造里自动隐藏
+            }
+
             app.Run();
         }
     }
