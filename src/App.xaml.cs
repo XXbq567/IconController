@@ -10,26 +10,27 @@ namespace IconController
     {
         private static readonly Mutex Mutex = new(true, "IconController_SingleInstance", out bool createdNew);
 
-        [STAThread]
-        public static void Main()
+        protected override void OnStartup(StartupEventArgs e)
         {
             if (!createdNew)
             {
                 BringOtherToFront();
+                Shutdown();
                 return;
             }
-            var app = new App();
+
             var s = Settings.Load();
             if (s.FirstRun)
             {
                 s.FirstRun = false;
                 s.Save();
-                app.Run(new MainWindow());
+                base.OnStartup(e); // 正常显示 MainWindow
             }
             else
             {
-                _ = new MainWindow(); // 构造里隐藏
-                app.Run();
+                // 启动后隐藏
+                base.OnStartup(e);
+                if (MainWindow is MainWindow mw) mw.Hide();
             }
         }
 
