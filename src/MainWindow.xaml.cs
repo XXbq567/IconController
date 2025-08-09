@@ -27,7 +27,6 @@ namespace IconController
                 Icon = System.Drawing.SystemIcons.Application,
                 Visible = _s.ShowTrayIcon
             };
-
             _tray.DoubleClick += (_, __) => Show();
             _tray.ContextMenuStrip = new ContextMenuStrip();
             _tray.ContextMenuStrip.Items.Add("设置", null, (_, __) => Show());
@@ -41,7 +40,6 @@ namespace IconController
             StartPolling();
         }
 
-        #region UI Binding
         private void BindUi()
         {
             EnabledBox.IsChecked  = _s.Enabled;
@@ -53,9 +51,7 @@ namespace IconController
             CancelBtn.Click += (_, __) => { if (!_s.FirstRun) Hide(); else Close(); };
             ChangeBtn.Click += (_, __) => OpenCaptureWindow();
         }
-        #endregion
 
-        #region Hotkey Capture
         private void OpenCaptureWindow()
         {
             var w = new Window
@@ -131,9 +127,7 @@ namespace IconController
             dlg.Content = panel;
             dlg.ShowDialog();
         }
-        #endregion
 
-        #region Actions
         private void Save()
         {
             _s.Enabled      = EnabledBox.IsChecked == true;
