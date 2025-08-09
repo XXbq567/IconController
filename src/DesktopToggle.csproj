@@ -2,13 +2,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
+
+    <!-- 同时启用 WPF + WinForms -->
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <AssemblyTitle>Desktop Icon Toggle</AssemblyTitle>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0</FileVersion>
+    <Nullable>disable</Nullable>   <!-- 先关闭 nullable reference 警告 -->
   </PropertyGroup>
 </Project>
