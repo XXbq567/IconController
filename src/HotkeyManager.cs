@@ -46,9 +46,4 @@ namespace IconController
                 if (t.Equals("Ctrl", StringComparison.OrdinalIgnoreCase)) f |= 0x2;
                 else if (t.Equals("Alt", StringComparison.OrdinalIgnoreCase)) f |= 0x1;
                 else if (t.Equals("Shift", StringComparison.OrdinalIgnoreCase)) f |= 0x4;
-                else return (f, (Key)Enum.Parse(typeof(Key), t, true));
-            }
-            return (f, Key.None);
-        }
-    }
-}
+                else return
