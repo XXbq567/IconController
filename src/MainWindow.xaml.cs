@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Button = System.Windows.Controls.Button;
+using Orientation = System.Windows.Controls.Orientation;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -31,9 +33,7 @@ namespace IconController
             _tray.ContextMenuStrip = new ContextMenuStrip();
             _tray.ContextMenuStrip.Items.Add("设置", null, (_, __) => Show());
             _tray.ContextMenuStrip.Items.Add("退出", null, (_, __) => Close());
-
             Loaded += (_, __) => { if (!_s.FirstRun) Hide(); };
-
             BindUi();
             ApplyAutoStart();
             RestartHotkey();
