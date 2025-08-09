@@ -14,13 +14,13 @@ namespace IconController
         public bool FirstRun { get; set; }    = true;
 
         private static readonly string Dir = Path.Combine(
-            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "IconController");
         private static readonly string FilePath = Path.Combine(Dir, "settings.json");
 
         public void Save()
         {
-            Directory.CreateDirectory(Dir);
+            Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
             File.WriteAllText(FilePath, JsonSerializer.Serialize(this));
         }
 
