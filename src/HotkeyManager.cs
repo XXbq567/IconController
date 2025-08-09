@@ -43,7 +43,7 @@ namespace IconController
             foreach (var p in s.Split('+'))
             {
                 var t = p.Trim();
-                if (t.Equals("Ctrl",  StringComparison.OrdinalIgnoreCase)) f |= 0x2;
+                if (t.Equals("Ctrl", StringComparison.OrdinalIgnoreCase)) f |= 0x2;
                 else if (t.Equals("Alt", StringComparison.OrdinalIgnoreCase)) f |= 0x1;
                 else if (t.Equals("Shift", StringComparison.OrdinalIgnoreCase)) f |= 0x4;
                 else return (f, (Key)Enum.Parse(typeof(Key), t, true));
