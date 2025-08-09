@@ -13,9 +13,18 @@ namespace IconController
         protected override void OnStartup(StartupEventArgs e)
         {
             if (!createdNew) { BringOtherToFront(); Shutdown(); return; }
+
             var s = Settings.Load();
-            if (s.FirstRun) { s.FirstRun = false; s.Save(); base.OnStartup(e); }
-            else { base.OnStartup(e); (MainWindow as MainWindow)?.Hide(); }
+            if (s.FirstRun)
+            {
+                s.FirstRun = false; s.Save();
+                base.OnStartup(e);
+            }
+            else
+            {
+                base.OnStartup(e);
+                (MainWindow as MainWindow)?.Hide();
+            }
         }
 
         private static void BringOtherToFront()
