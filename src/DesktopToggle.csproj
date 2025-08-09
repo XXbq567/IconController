@@ -2,14 +2,11 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-
-    <!-- 同时启用 WPF + WinForms -->
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-
+    <Nullable>disable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Nullable>disable</Nullable>   <!-- 先关闭 nullable reference 警告 -->
   </PropertyGroup>
 </Project>
