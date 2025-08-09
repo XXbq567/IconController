@@ -8,14 +8,14 @@
         WindowStartupLocation="CenterScreen">
   <Grid Margin="15">
     <StackPanel>
-      <CheckBox x:Name="EnabledBox" Content="启用快捷键" Margin="0 5"/>
+      <CheckBox x:Name="EnabledBox"  Content="启用快捷键" Margin="0 5"/>
       <TextBlock Text="快捷键：" Margin="0 8 0 0"/>
-      <TextBox x:Name="HotkeyBox" Margin="0 2" Padding="4"/>
-      <CheckBox x:Name="AutoStartBox" Content="开机自启" Margin="0 10"/>
-      <CheckBox x:Name="ShowTrayIconBox" Content="显示托盘图标" Margin="0 5"/>
+      <TextBox  x:Name="HotkeyBox"  Margin="0 2" Padding="4"/>
+      <CheckBox x:Name="AutoStartBox"     Content="开机自启" Margin="0 10"/>
+      <CheckBox x:Name="ShowTrayIconBox"  Content="显示托盘图标" Margin="0 5"/>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 15">
-        <Button x:Name="SaveBtn" Content="保存" Width="80" Margin="5 0"/>
-        <Button x:Name="CancelBtn" Content="取消" Width="80"/>
+        <Button x:Name="SaveBtn"    Content="保存"  Width="80" Margin="5 0"/>
+        <Button x:Name="CancelBtn"  Content="取消"  Width="80"/>
       </StackPanel>
     </StackPanel>
   </Grid>
