@@ -3,54 +3,52 @@ using System.Runtime.InteropServices;
 using System.Windows.Input;
 using System.Windows.Interop;
 
-namespace DesktopToggle
+namespace IconController
 {
-    public class HotkeyManager : IDisposable
+    public sealed class HotkeyManager : IDisposable
     {
         private const int WM_HOTKEY = 0x0312;
         private readonly int _id;
-        private readonly Action _callback;
-        private readonly HwndSource _source;
+        private readonly Action _action;
+        private readonly HwndSource _src;
 
-        [DllImport("user32.dll")] static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-        [DllImport("user32.dll")] static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        [DllImport("user32")] static extern bool RegisterHotKey(IntPtr h, int id, uint f, uint v);
+        [DllImport("user32")] static extern bool UnregisterHotKey(IntPtr h, int id);
 
-        public HotkeyManager(IntPtr hwnd, string shortcut, Action callback)
+        public HotkeyManager(IntPtr h, string s, Action a)
         {
-            _callback = callback;
+            _action = a;
             _id = GetHashCode();
-            _source = HwndSource.FromHwnd(hwnd);
-            _source.AddHook(WndProc);
-
-            var (mod, key) = Parse(shortcut);
-            RegisterHotKey(hwnd, _id, mod, (uint)KeyInterop.VirtualKeyFromKey(key));
+            _src = HwndSource.FromHwnd(h);
+            _src.AddHook(WndProc);
+            var (f, k) = Parse(s);
+            RegisterHotKey(h, _id, f, (uint)KeyInterop.VirtualKeyFromKey(k));
         }
 
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        private IntPtr WndProc(IntPtr h, int m, IntPtr w, IntPtr l, ref bool handled)
         {
-            if (msg == WM_HOTKEY && wParam.ToInt32() == _id)
-                _callback();
+            if (m == WM_HOTKEY && w.ToInt32() == _id) _action();
             return IntPtr.Zero;
         }
 
         public void Dispose()
         {
-            UnregisterHotKey(_source.Handle, _id);
-            _source.RemoveHook(WndProc);
+            UnregisterHotKey(_src.Handle, _id);
+            _src.RemoveHook(WndProc);
         }
 
-        private static (uint mod, Key key) Parse(string s)
+        private static (uint, Key) Parse(string s)
         {
-            uint mod = 0;
-            var parts = s.Split('+', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            foreach (var p in parts)
+            uint f = 0;
+            foreach (var p in s.Split('+'))
             {
-                if (p.Equals("Ctrl", StringComparison.OrdinalIgnoreCase)) mod |= 0x0002;
-                else if (p.Equals("Alt", StringComparison.OrdinalIgnoreCase)) mod |= 0x0001;
-                else if (p.Equals("Shift", StringComparison.OrdinalIgnoreCase)) mod |= 0x0004;
-                else return (mod, (Key)Enum.Parse(typeof(Key), p, true));
+                var t = p.Trim();
+                if (t.Equals("Ctrl",  StringComparison.OrdinalIgnoreCase)) f |= 0x2;
+                else if (t.Equals("Alt", StringComparison.OrdinalIgnoreCase)) f |= 0x1;
+                else if (t.Equals("Shift", StringComparison.OrdinalIgnoreCase)) f |= 0x4;
+                else return (f, (Key)Enum.Parse(typeof(Key), t, true));
             }
-            return (mod, Key.None);
+            return (f, Key.None);
         }
     }
 }
