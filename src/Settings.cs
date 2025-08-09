@@ -29,4 +29,5 @@ namespace IconController
             try { return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FilePath)) ?? new(); }
             catch { return new(); }
         }
+    }
 }
