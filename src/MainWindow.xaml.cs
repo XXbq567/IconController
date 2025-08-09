@@ -3,18 +3,22 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Forms;
-using MessageBox = System.Windows.MessageBox;
+using System.Windows.Interop;
+
+// 不再 using System.Windows.Forms; 避免与 WPF 冲突
+// NotifyIcon 用完全限定名
 
 public partial class MainWindow : Window
 {
     private readonly Settings _settings = Settings.Load();
     private HotkeyManager? _hk;
-    private readonly NotifyIcon _tray = new()
+
+    // 注意：写成完全限定名
+    private readonly System.Windows.Forms.NotifyIcon _tray = new()
     {
         Text = "Desktop Icon Toggle",
         Icon = System.Drawing.SystemIcons.Application,
-        Visible = _settings.ShowTrayIcon
+        Visible = true
     };
 
     public MainWindow()
@@ -22,14 +26,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = _settings;
 
-        EnabledBox.IsChecked = _settings.Enabled;
-        HotkeyBox.Text = _settings.Hotkey;
-        AutoStartBox.IsChecked = _settings.AutoStart;
-        ShowTrayIconBox.IsChecked = _settings.ShowTrayIcon;
+        Loaded += (_, __) => { Hide(); }; // 启动后隐藏主窗口
 
-        SaveBtn.Click += (_, __) => Save();
-        CancelBtn.Click += (_, __) => Close();
         _tray.DoubleClick += (_, __) => Show();
+        _tray.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
+        _tray.ContextMenuStrip.Items.Add("设置", null, (_, __) => Show());
+        _tray.ContextMenuStrip.Items.Add("退出", null, (_, __) => Close());
 
         ApplyAutoStart();
         RestartHotkey();
@@ -37,8 +39,8 @@ public partial class MainWindow : Window
 
     private void Save()
     {
-        _settings.Enabled = EnabledBox.IsChecked == true;
-        _settings.Hotkey = HotkeyBox.Text;
+        _settings.Enabled   = EnabledBox.IsChecked == true;
+        _settings.Hotkey    = HotkeyBox.Text;
         _settings.AutoStart = AutoStartBox.IsChecked == true;
         _settings.ShowTrayIcon = ShowTrayIconBox.IsChecked == true;
         _settings.Save();
@@ -53,8 +55,9 @@ public partial class MainWindow : Window
     {
         var rk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
             "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+        var exePath = Process.GetCurrentProcess().MainModule!.FileName;
         if (_settings.AutoStart)
-            rk?.SetValue("DesktopToggle", Process.GetCurrentProcess().MainModule!.FileName);
+            rk?.SetValue("DesktopToggle", exePath);
         else
             rk?.DeleteValue("DesktopToggle", false);
     }
@@ -63,10 +66,12 @@ public partial class MainWindow : Window
     {
         _hk?.Dispose();
         if (_settings.Enabled)
+        {
             _hk = new HotkeyManager(
-                new System.Windows.Interop.WindowInteropHelper(this).Handle,
+                new WindowInteropHelper(this).Handle,
                 _settings.Hotkey,
                 ToggleIcons);
+        }
     }
 
     private static void ToggleIcons()
