@@ -8,11 +8,11 @@ namespace IconController
 {
     public partial class App : Application
     {
-        private static readonly Mutex _mutex = new(true, "IconController_SingleInstance", out bool _createdNew);
+        private static readonly Mutex Mutex = new(true, "IconController_SingleInstance", out bool createdNew);
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            if (!_createdNew)
+            if (!createdNew)
             {
                 BringOtherToFront();
                 Shutdown();
@@ -24,12 +24,13 @@ namespace IconController
             {
                 s.FirstRun = false;
                 s.Save();
+                base.OnStartup(e);          // 正常启动 MainWindow
             }
             else
             {
-                if (MainWindow is MainWindow mw) mw.Hide();
+                base.OnStartup(e);
+                if (MainWindow is MainWindow mw) mw.Hide(); // 后台运行
             }
-            base.OnStartup(e);
         }
 
         private static void BringOtherToFront()
