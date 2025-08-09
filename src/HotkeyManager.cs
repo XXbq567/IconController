@@ -12,8 +12,8 @@ namespace DesktopToggle
         private readonly Action _callback;
         private readonly HwndSource _source;
 
-        [DllImport("user32.dll")] private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-        [DllImport("user32.dll")] private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        [DllImport("user32.dll")] static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+        [DllImport("user32.dll")] static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         public HotkeyManager(IntPtr hwnd, string shortcut, Action callback)
         {
