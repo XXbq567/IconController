@@ -34,6 +34,7 @@ namespace IconController
                 if (p.Id != proc.Id) { SetForegroundWindow(p.MainWindowHandle); break; }
         }
 
-        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }
