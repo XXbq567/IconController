@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterScreen">
   <Grid Margin="15">
     <StackPanel>
-      <CheckBox x:Name="EnabledBox" Content="启用快捷键" Margin="0 5"/>
+      <CheckBox x:Name="EnabledBox"  Content="启用快捷键" Margin="0 5"/>
       <TextBlock Text="快捷键：" Margin="0 6 0 0"/>
       <DockPanel>
         <Button x:Name="ChangeBtn" Content="修改快捷键" Width="90" DockPanel.Dock="Right" Margin="5 0"
