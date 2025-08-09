@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Button = System.Windows.Controls.Button;
+using Orientation = System.Windows.Controls.Orientation;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -46,11 +48,11 @@ namespace IconController
             HotkeyBox.Text = _s.Hotkey;
             AutoStartBox.IsChecked = _s.AutoStart;
             ShowTrayBox.IsChecked = _s.ShowTrayIcon;
-
-            SaveBtn.Click += (_, __) => Save();
-            CancelBtn.Click += (_, __) => { if (!_s.FirstRun) Hide(); else Close(); };
-            ChangeBtn.Click += (_, __) => OpenCaptureWindow();
         }
+
+        private void ChangeBtn_Click(object sender, RoutedEventArgs e) => OpenCaptureWindow();
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)   => Save();
+        private void CancelBtn_Click(object sender, RoutedEventArgs e) => { if (!_s.FirstRun) Hide(); else Close(); }
 
         private void OpenCaptureWindow()
         {
@@ -70,7 +72,7 @@ namespace IconController
                 }
             };
 
-            w.KeyDown += (s, e) =>
+            w.KeyDown += (_, e) =>
             {
                 var mod = "";
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) mod += "Ctrl+";
@@ -139,3 +141,62 @@ namespace IconController
             RestartHotkey();
             _tray.Visible = _s.ShowTrayIcon;
             Hide();
+        }
+
+        private void ApplyAutoStart()
+        {
+            var rk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            var exe = Process.GetCurrentProcess().MainModule!.FileName;
+            if (_s.AutoStart)
+                rk?.SetValue("IconController", exe);
+            else
+                rk?.DeleteValue("IconController", false);
+        }
+
+        private void RestartHotkey()
+        {
+            _hk?.Dispose();
+            if (_s.Enabled)
+                _hk = new HotkeyManager(
+                    new WindowInteropHelper(this).Handle,
+                    _s.Hotkey,
+                    () =>
+                    {
+                        bool cur = IsIconsHidden();
+                        SetIconsVisible(cur);
+                        _s.HideIcons = !cur;
+                        _s.Save();
+                    });
+        }
+
+        private bool IsIconsHidden() =>
+            (int?)Microsoft.Win32.Registry.GetValue(
+                @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
+                "HideIcons", 0) == 1;
+
+        private void SetIconsVisible(bool show)
+        {
+            Microsoft.Win32.Registry.SetValue(
+                @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
+                "HideIcons", show ? 0 : 1, Microsoft.Win32.RegistryValueKind.DWord);
+            RefreshDesktop();
+        }
+
+        private void StartPolling()
+        {
+            _poll = new Timer(1500);
+            _poll.Elapsed += (_, __) =>
+            {
+                bool cur = IsIconsHidden();
+                if (cur != _s.HideIcons)
+                {
+                    _s.HideIcons = cur;
+                    _s.Save();
+                }
+            };
+            _poll.Start();
+        }
+
+        [DllImport("shell32.dll")] private static extern void SHChangeNotify(int w, int u, IntPtr d1, IntPtr d2);
+        private static void RefreshDesktop() => SHChangeNotify(0x8000000, 0x1000, IntPtr.Zero, IntPtr
