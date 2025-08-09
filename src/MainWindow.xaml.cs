@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
-using Button = System.Windows.Controls.Button;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -22,12 +21,19 @@ namespace IconController
         public MainWindow()
         {
             InitializeComponent();
-            _tray = new NotifyIcon { Text = "IconController", Icon = System.Drawing.SystemIcons.Application, Visible = _s.ShowTrayIcon };
+            _tray = new NotifyIcon
+            {
+                Text = "IconController",
+                Icon = System.Drawing.SystemIcons.Application,
+                Visible = _s.ShowTrayIcon
+            };
             _tray.DoubleClick += (_, __) => Show();
             _tray.ContextMenuStrip = new ContextMenuStrip();
             _tray.ContextMenuStrip.Items.Add("设置", null, (_, __) => Show());
             _tray.ContextMenuStrip.Items.Add("退出", null, (_, __) => Close());
+
             Loaded += (_, __) => { if (!_s.FirstRun) Hide(); };
+
             BindUi();
             ApplyAutoStart();
             RestartHotkey();
@@ -43,8 +49,11 @@ namespace IconController
         }
 
         private void ChangeBtn_Click(object sender, RoutedEventArgs e) => OpenCaptureWindow();
-        private void SaveBtn_Click(object sender, RoutedEventArgs e)   => Save();
-        private void CancelBtn_Click(object sender, RoutedEventArgs e) => { if (!_s.FirstRun) Hide(); else Close(); }
+        private void SaveBtn_Click(object sender, RoutedEventArgs e) => Save();
+        private void CancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_s.FirstRun) Hide(); else Close();
+        }
 
         private void OpenCaptureWindow()
         {
@@ -60,15 +69,15 @@ namespace IconController
                 {
                     Text = "请按下组合键…",
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment   = VerticalAlignment.Center
+                    VerticalAlignment = VerticalAlignment.Center
                 }
             };
             w.KeyDown += (_, e) =>
             {
                 var mod = "";
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) mod += "Ctrl+";
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))     mod += "Alt+";
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))   mod += "Shift+";
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) mod += "Alt+";
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) mod += "Shift+";
                 var key = e.Key == Key.System ? e.SystemKey : e.Key;
                 if (key != Key.None && key != Key.LeftCtrl && key != Key.RightCtrl &&
                     key != Key.LeftAlt && key != Key.RightAlt &&
@@ -133,7 +142,7 @@ namespace IconController
         private void ApplyAutoStart()
         {
             var rk = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
-                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
             var exe = Process.GetCurrentProcess().MainModule!.FileName;
             if (_s.AutoStart) rk?.SetValue("IconController", exe);
             else rk?.DeleteValue("IconController", false);
