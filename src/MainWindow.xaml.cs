@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Button = System.Windows.Controls.Button;
+using Orientation = System.Windows.Controls.Orientation;
 using Timer = System.Timers.Timer;
 
 namespace IconController
@@ -40,23 +42,18 @@ namespace IconController
             StartPolling();
         }
 
-        private void BindUi()
-        {
-            EnabledBox.IsChecked  = _s.Enabled;
-            HotkeyBox.Text        = _s.Hotkey;
-            AutoStartBox.IsChecked = _s.AutoStart;
-            ShowTrayBox.IsChecked  = _s.ShowTrayIcon;
+        #region UI Events
+        private void ChangeBtn_Click(object sender, RoutedEventArgs e) => OpenCaptureWindow();
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)   => Save();
+        private void CancelBtn_Click(object sender, RoutedEventArgs e) => { if (!_s.FirstRun) Hide(); else Close(); }
+        #endregion
 
-            SaveBtn.Click   += (_, __) => Save();
-            CancelBtn.Click += (_, __) => { if (!_s.FirstRun) Hide(); else Close(); };
-            ChangeBtn.Click += (_, __) => OpenCaptureWindow();
-        }
-
+        #region Hotkey Capture
         private void OpenCaptureWindow()
         {
             var w = new Window
             {
-                Title = "请按下新快捷键",
+                Title = "请按下新快捷键…",
                 Width = 300, Height = 120,
                 Owner = this,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -70,7 +67,7 @@ namespace IconController
                 }
             };
 
-            w.KeyDown += (s, e) =>
+            w.KeyDown += (_, e) =>
             {
                 var mod = "";
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) mod += "Ctrl+";
@@ -127,6 +124,7 @@ namespace IconController
             dlg.Content = panel;
             dlg.ShowDialog();
         }
+        #endregion
 
         private void Save()
         {
