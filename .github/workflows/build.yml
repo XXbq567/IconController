@@ -5,23 +5,16 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '6.0.x'
+        with: { dotnet-version: '6.0.x' }
       - run: dotnet publish src/IconController.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish
       - uses: actions/upload-artifact@v4
-        with:
-          name: IconController-Win-x64
-          path: publish/*.exe
+        with: { name: IconController-Win-x64, path: publish/*.exe }
       - if: startsWith(github.ref,'refs/tags/')
         uses: softprops/action-gh-release@v2
-        with:
-          files: publish/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with: { files: publish/*.exe }
