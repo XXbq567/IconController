@@ -1,21 +1,15 @@
-using System;
 using System.Windows;
 
-public class Program
+namespace DesktopToggle
 {
-    [STAThread]
-    public static void Main()
+    public class Program
     {
-        var app = new Application();
-        app.Run(new App());
-    }
-}
-
-public class App : Application
-{
-    protected override void OnStartup(StartupEventArgs e)
-    {
-        base.OnStartup(e);
-        new MainWindow().Hide(); // 后台运行
+        [STAThread]
+        public static void Main()
+        {
+            var app = new Application();
+            app.Run();   // 不传入 Window，由 MainWindow 自己在构造里 Hide
+            // MainWindow 实例会在托盘里保持后台
+        }
     }
 }
