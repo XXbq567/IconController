@@ -25,9 +25,9 @@ namespace IconController
             RegisterHotKey(h, _id, f, (uint)KeyInterop.VirtualKeyFromKey(k));
         }
 
-        private IntPtr WndProc(IntPtr h, int m, IntPtr w, IntPtr l, ref bool handled)
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (m == WM_HOTKEY && w.ToInt32() == _id) _action();
+            if (msg == WM_HOTKEY && wParam.ToInt32() == _id) _action();
             return IntPtr.Zero;
         }
 
@@ -40,9 +40,9 @@ namespace IconController
         private static (uint, Key) Parse(string s)
         {
             uint f = 0;
-            foreach (var p in s.Split('+'))
+            foreach (var p in s.Split('+', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                var t = p.Trim();
+                var t = p;
                 if (t.Equals("Ctrl",  StringComparison.OrdinalIgnoreCase)) f |= 0x2;
                 else if (t.Equals("Alt", StringComparison.OrdinalIgnoreCase)) f |= 0x1;
                 else if (t.Equals("Shift", StringComparison.OrdinalIgnoreCase)) f |= 0x4;
