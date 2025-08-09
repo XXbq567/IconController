@@ -17,8 +17,7 @@ namespace IconController
             var s = Settings.Load();
             if (s.FirstRun)
             {
-                s.FirstRun = false;
-                s.Save();
+                s.FirstRun = false; s.Save();
                 base.OnStartup(e);
             }
             else
@@ -35,7 +34,6 @@ namespace IconController
                 if (p.Id != proc.Id) { SetForegroundWindow(p.MainWindowHandle); break; }
         }
 
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }
