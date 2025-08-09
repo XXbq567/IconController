@@ -6,14 +6,14 @@ namespace IconController
     public class Settings
     {
         public string Hotkey { get; set; } = "Ctrl+Alt+H";
-        public bool AutoStart { get; set; } = false;
-        public bool ShowTrayIcon { get; set; } = true;
-        public bool Enabled { get; set; } = false;
-        public bool HideIcons { get; set; } = false;
-        public bool FirstRun { get; set; } = true;
+        public bool AutoStart { get; set; }   = false;
+        public bool ShowTrayIcon { get; set; }= true;
+        public bool Enabled { get; set; }     = false;   // 首次默认关闭
+        public bool HideIcons { get; set; }   = false;   // 首次不隐藏
+        public bool FirstRun { get; set; }    = true;
 
-        private static readonly string Dir = Path.Combine(
-            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+        private static readonly string Dir  = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "IconController");
         private static readonly string FilePath = Path.Combine(Dir, "settings.json");
 
